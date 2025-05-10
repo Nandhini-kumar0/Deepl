@@ -1,0 +1,30 @@
+import numpy as n
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.utils import to_categorical
+
+t = "language modeling using rnn with lstm layer"
+
+c = sorted(list(set(t)))
+c2i = {ch: i for i, ch in enumerate(c)}
+i2c = {i: ch for i, ch in enumerate(c)}
+
+m = 10
+s = []
+r = []
+
+for i in range(len(t) - m):
+    seq = t[i:i + m]
+    trg = t[i + m]
+    s.append([c2i[ch] for ch in seq])
+    r.append(c2i[trg])
+
+x = to_categorical(s, num_classes=len(c))
+y = to_categorical(r, num_classes=len(c))
+
+model = Sequential()
+model.add(LSTM(128, input_shape=(m, len(c))))
+model.add(Dense(len(c), activation='softmax'))
+
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.fit(x, y, epochs=50, batch_size=32)
